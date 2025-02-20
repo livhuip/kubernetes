@@ -9,7 +9,6 @@ instance:
     - notification-controller
   sync:
     kind: GitRepository
-    url: "ssh://git@github.com/livhuip/kubernetes.git"
-    pullSecret: github-deploy-key
+    url: "https://github.com/livhuip/kubernetes.git"
     ref: "refs/heads/main"
     path: kubernetes/flux/cluster
