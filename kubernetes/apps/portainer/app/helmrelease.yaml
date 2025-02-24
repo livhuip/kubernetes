@@ -22,7 +22,7 @@ spec:
       enabled: true
       existingClaim: "portainer-pvc"
       size: 128Mi
-      storageClass: ceph-bucket
+      # storageClass: ceph-bucket
     ingress:
       enabled: true
       ingressClassName: internal
