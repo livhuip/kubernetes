@@ -6,9 +6,9 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
-  ingressClassName: internal-ingress-nginx
+  ingressClassName: external
   rules:
-    - host: rancher.${SECRET_DOMAIN}
+    - host: ranchertalos.${SECRET_DOMAIN}
       http:
         paths:
           - path: /
