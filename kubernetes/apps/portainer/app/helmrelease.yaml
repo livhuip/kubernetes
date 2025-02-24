@@ -6,9 +6,9 @@ metadata:
   namespace: flux-system
 spec:
   interval: 6h
-  dependsOn:
-    - name: rook-ceph
-      namespace: rook-ceph-external
+  # dependsOn:
+  #   - name: rook-ceph
+  #     namespace: rook-ceph-external
   chart:
     spec:
       chart: portainer
