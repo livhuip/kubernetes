@@ -2,9 +2,13 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: rook-ceph-external
 resources:
-  # Pre Flux-Kustomizations
+  - ./rook-ceph/ks.yaml
   - ./namespace.yaml
-  # - ./rook-ceph-external/rook-ceph-external-vars.sops.yaml
-  # Flux-Kustomizations
-  # - ./rook-ceph-external/ks.yaml
+# components:
+#   - ../../flux/meta/components/cluster-vars
+#   - ../../../shared/meta/components/alerts
+#   - ../../../shared/meta/components/global-vars
+#   - ../../../shared/meta/components/namespace
+#   - ../../../shared/meta/components/sops
