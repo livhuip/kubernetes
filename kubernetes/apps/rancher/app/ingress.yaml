@@ -6,7 +6,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
-  ingressClassName: external
+  ingressClassName: internal
   rules:
     - host: ranchertalos.${SECRET_DOMAIN}
       http:

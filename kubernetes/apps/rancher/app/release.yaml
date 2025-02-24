@@ -15,5 +15,5 @@ spec:
         namespace: flux-system
   values:
     replicas: 1
-    hostname: rancher.${SECRET_DOMAIN}
+    hostname: ranchertalos.${SECRET_DOMAIN}
     bootstrapPassword: "${SECRET_RANCHER_ADMIN_PASSWORD}"
