@@ -1,0 +1,233 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/refs/heads/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rook-ceph-cluster
+  namespace: rook-ceph
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: rook-ceph-cluster
+      version: v1.16.4
+      sourceRef:
+        kind: HelmRepository
+        name: rook-ceph
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+    timeout: 60m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 60m
+  uninstall:
+    keepHistory: false
+    timeout: 5m
+  values:
+    monitoring:
+      enabled: true
+      createPrometheusRules: true
+    ingress:
+      dashboard:
+        ingressClassName: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/whitelist-source-range: |
+            10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Infrastructure
+          gethomepage.dev/name: Ceph
+          gethomepage.dev/icon: ceph
+          gethomepage.dev/description: Ceph Dashboard
+          gethomepage.dev/siteMonitor: "http://rook-ceph-mgr-dashboard.rook-ceph.svc.cluster.local:7000"
+          gethomepage.dev/pod-selector: >-
+            app.kubernetes.io/name in (ceph-mgr)
+        host:
+          name: &host rook.${SECRET_DOMAIN}
+          path: /
+        tls:
+          - hosts:
+              - *host
+    toolbox:
+      enabled: true
+    configOverride: |
+      [global]
+      bdev_enable_discard = true
+      bdev_async_discard = true
+    pspEnable: false
+    cephClusterSpec:
+      network:
+        provider: host
+        connections:
+          compression:
+            # TODO: Test out enabling this on next cluster rebuild
+            enabled: false
+      cephVersion:
+        image: quay.io/ceph/ceph:v19.2.0-20240927
+        allowUnsupported: true
+      placement:
+        all:
+          tolerations:
+            - effect: NoSchedule
+              key: node-role.kubernetes.io/master
+      crashCollector:
+        disable: true
+      dataDirHostPath: /var/lib/rook-internal
+      dashboard:
+        enabled: true
+        urlPrefix: /
+        ssl: false
+      storage:
+        useAllNodes: false
+        useAllDevices: false
+        config:
+          osdsPerDevice: "1"
+        nodes:
+          - name: k8s-w1
+            devices:
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_KWKPWUBX
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7GLU3BX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M06JHE
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M186H0
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PNPQ
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0QQRX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PND7
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0R3M5
+          - name: k8s-w2
+            devices:
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7GLGYJX
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7GDNDAX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PXL6
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PYN1
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PYY8
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0Q1ZH
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0Q2BZ
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0QWYA
+          - name: k8s-w3
+            devices:
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7J9KVBG
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_KWK99TWX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0MVGD
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PNK5
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PNNM
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0Q0YW
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0Q22S
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M17DG2
+          - name: k8s-w4
+            devices:
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7J9JR2G
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_KWKE62DX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0NSNP
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PNM2
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PZDG
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PZGJ
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0Q2VT
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0R2WK
+          - name: k8s-w5
+            devices:
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_KWHEYAPN
+              - name: /dev/disk/by-id/scsi-SHITACHI_DKR5D-J600SS_W7GDW2JX
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PNAV
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PRGZ
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PYH5
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M0PZTA
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M174JB
+              - name: /dev/disk/by-id/scsi-SSEAGATE_ST600MM0006_S0M4MQ3J
+    cephBlockPools:
+      - name: ceph-blockpool
+        spec:
+          failureDomain: host
+          replicated:
+            size: 3
+        storageClass:
+          enabled: true
+          name: ceph-block-internal
+          isDefault: true
+          reclaimPolicy: Delete
+          allowVolumeExpansion: true
+          parameters:
+            imageFormat: "2"
+            imageFeatures: layering
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+            csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+            csi.storage.k8s.io/fstype: ext4
+    cephFileSystems:
+      - name: ceph-filesystem
+        spec:
+          metadataPool:
+            replicated:
+              size: 3
+          dataPools:
+            - failureDomain: host
+              replicated:
+                size: 3
+              name: data0
+          metadataServer:
+            activeCount: 1
+            activeStandby: true
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 4Gi
+              limits:
+                memory: 4Gi
+        storageClass:
+          enabled: true
+          isDefault: false
+          name: ceph-filesystem-internal
+          pool: data0
+          reclaimPolicy: Delete
+          allowVolumeExpansion: true
+          parameters:
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+            csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+            csi.storage.k8s.io/fstype: ext4
+    cephObjectStores:
+      - name: ceph-objectstore
+        spec:
+          metadataPool:
+            failureDomain: host
+            replicated:
+              size: 3
+          dataPool:
+            failureDomain: host
+            erasureCoded:
+              dataChunks: 2
+              codingChunks: 1
+          preservePoolsOnDelete: true
+          gateway:
+            port: 80
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 1Gi
+            instances: 1
+          healthCheck:
+            bucket:
+              interval: 60s
+        storageClass:
+          enabled: true
+          name: ceph-bucket-internal
+          reclaimPolicy: Delete
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          host:
+            name: s3.${SECRET_DOMAIN}
+            path: /
+          tls:
+            - hosts:
+                - s3.${SECRET_DOMAIN}
