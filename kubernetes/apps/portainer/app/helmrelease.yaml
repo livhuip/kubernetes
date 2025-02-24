@@ -7,7 +7,7 @@ metadata:
 spec:
   interval: 6h
   dependsOn:
-    - name: rook-ceph-external
+    - name: rook-ceph
       namespace: rook-ceph-external
   chart:
     spec:
