@@ -15,4 +15,4 @@ resources:
   - ./spegel.yaml
   - ./stakater.yaml
   - ./rancher-latest.yaml
-  - ./rook-ceph
+  - ./rook-ceph.yaml
