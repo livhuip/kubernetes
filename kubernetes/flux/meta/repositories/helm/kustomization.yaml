@@ -16,3 +16,4 @@ resources:
   - ./stakater.yaml
   - ./rancher-latest.yaml
   - ./rook-ceph.yaml
+  - ./portainer.yaml
