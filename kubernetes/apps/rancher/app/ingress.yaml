@@ -20,5 +20,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - rancher.${SECRET_DOMAIN}
+        - ranchertalos.${SECRET_DOMAIN}
       secretName: rancher-ingress-certs
