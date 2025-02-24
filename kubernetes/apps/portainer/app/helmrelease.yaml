@@ -19,6 +19,8 @@ spec:
         namespace: flux-system
   values:
     persistence:
+      enabled: true
+      existingClaim: "portainer-pvc"
       size: 128Mi
       storageClass: ceph-rbd
     ingress:
