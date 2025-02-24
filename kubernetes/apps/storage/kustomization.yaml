@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: storage
 resources:
   - ./snapshot-controller/ks.yaml
-  - ./namespace.yaml
+  # - ./namespace.yaml
   # - ./volsync/ks.yaml
   # - ./minio/ks.yaml
 components:
